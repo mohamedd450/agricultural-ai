@@ -1,0 +1,112 @@
+{
+  "app": {
+    "title": "Agricultural AI",
+    "subtitle": "Smart Farming Assistant"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "analysis": "Analysis",
+    "history": "History",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "welcome": "Welcome to Agricultural AI",
+    "welcomeDesc": "Diagnose crop diseases using AI-powered image analysis and knowledge graphs.",
+    "quickAnalysis": "Quick Analysis",
+    "quickAnalysisDesc": "Upload a crop image or describe symptoms to get instant diagnosis.",
+    "startAnalysis": "Start Analysis",
+    "recentAnalyses": "Recent Analyses",
+    "noRecent": "No recent analyses. Start by uploading an image.",
+    "systemStatus": "System Status",
+    "apiStatus": "API Server",
+    "modelStatus": "AI Model",
+    "graphStatus": "Knowledge Graph",
+    "online": "Online",
+    "offline": "Offline"
+  },
+  "analysis": {
+    "title": "Crop Disease Analysis",
+    "imageUpload": "Image Upload",
+    "voiceInput": "Voice Input",
+    "textQuery": "Text Query",
+    "textPlaceholder": "Describe the symptoms you observe...",
+    "analyze": "Analyze",
+    "analyzing": "Analyzing...",
+    "results": "Diagnosis Results",
+    "graphPaths": "Knowledge Graph Paths",
+    "noResults": "Submit an image, voice recording, or text query to see results."
+  },
+  "upload": {
+    "dragDrop": "Drag & drop images here, or click to select",
+    "supportedFormats": "Supports: JPG, PNG, WEBP (max 10MB)",
+    "upload": "Upload & Analyze",
+    "uploading": "Uploading...",
+    "preview": "Preview",
+    "remove": "Remove"
+  },
+  "diagnosis": {
+    "disease": "Disease",
+    "confidence": "Confidence",
+    "treatment": "Recommended Treatment",
+    "explanation": "Explanation",
+    "graphPaths": "Graph Reasoning Paths",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "voice": {
+    "record": "Record",
+    "stop": "Stop Recording",
+    "recording": "Recording...",
+    "processing": "Processing audio...",
+    "transcription": "Transcription",
+    "notSupported": "Voice recording is not supported in your browser."
+  },
+  "history": {
+    "title": "Analysis History",
+    "noHistory": "No analysis history yet.",
+    "query": "Query",
+    "diagnosis": "Diagnosis",
+    "confidence": "Confidence",
+    "date": "Date",
+    "viewDetails": "View Details",
+    "page": "Page",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageDesc": "Choose your preferred language",
+    "arabic": "Arabic",
+    "english": "English",
+    "theme": "Theme",
+    "themeDesc": "Toggle between light and dark mode",
+    "light": "Light",
+    "dark": "Dark",
+    "apiKey": "API Key",
+    "apiKeyDesc": "Your API key for authentication",
+    "show": "Show",
+    "hide": "Hide",
+    "profile": "User Profile",
+    "profileDesc": "Manage your account settings",
+    "username": "Username",
+    "email": "Email",
+    "save": "Save Changes"
+  },
+  "graph": {
+    "legend": "Legend",
+    "disease": "Disease",
+    "symptom": "Symptom",
+    "crop": "Crop",
+    "treatment": "Treatment",
+    "noData": "No graph data available."
+  },
+  "errors": {
+    "uploadFailed": "Failed to upload image. Please try again.",
+    "analysisFailed": "Analysis failed. Please try again.",
+    "networkError": "Network error. Please check your connection.",
+    "fileTooLarge": "File is too large. Maximum size is 10MB.",
+    "invalidFormat": "Invalid file format. Please upload JPG, PNG, or WEBP."
+  }
+}
