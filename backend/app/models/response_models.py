@@ -48,7 +48,7 @@ class VoiceResponse(BaseModel):
     """Response model for voice-based interactions."""
 
     text_response: str = Field(..., description="Text version of the response")
-    audio_url: Optional[str] = Field(None, description="URL to synthesised audio response")
+    audio_url: Optional[str] = Field(None, description="URL to synthesized audio response")
     language: str = Field(..., description="Language of the response")
     request_id: str = Field(..., description="Request tracking ID")
 

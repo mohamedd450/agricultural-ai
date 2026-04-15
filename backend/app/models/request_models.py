@@ -137,8 +137,12 @@ class UserRegisterRequest(BaseModel):
     @field_validator("email")
     @classmethod
     def validate_email(cls, v: str) -> str:
-        if "@" not in v or "." not in v.split("@")[-1]:
+        parts = v.split("@")
+        if len(parts) != 2 or not parts[0] or not parts[1]:
             raise ValueError("Invalid email address format")
+        domain_parts = parts[1].split(".")
+        if len(domain_parts) < 2 or any(not p for p in domain_parts):
+            raise ValueError("Invalid email domain format")
         return v
 
     @field_validator("preferred_language")
