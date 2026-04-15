@@ -64,7 +64,7 @@ function parsePath(
   return { nodes, edges };
 }
 
-export default function useGraph(): UseGraphReturn {
+export function useGraph(): UseGraphReturn {
   const [graphData, setGraphData] = useState<GraphData>(EMPTY_GRAPH);
 
   const updateGraph = useCallback(
@@ -90,3 +90,5 @@ export default function useGraph(): UseGraphReturn {
 
   return { graphData, updateGraph, clearGraph };
 }
+
+export default useGraph;
