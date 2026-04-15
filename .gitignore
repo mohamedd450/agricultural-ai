@@ -49,11 +49,11 @@ logs/
 data/
 uploads/
 
-# Models
+# ML model weights
 *.pth
 *.pt
 *.onnx
-models/
+/models/
 
 # Coverage
 .coverage
