@@ -1,117 +1,126 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import ImageUpload from "../components/ImageUpload";
+import VoiceInput from "../components/VoiceInput";
+import DiagnosisDisplay from "../components/DiagnosisDisplay";
+import GraphVisualization from "../components/GraphVisualization";
+import { useAnalysis } from "../hooks/useAnalysis";
+import { useGraph } from "../hooks/useGraph";
+import { DiagnosisResponse } from "../services/api";
 
 const Analysis: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [textQuery, setTextQuery] = useState("");
+  const { isLoading, result, error, analyzeImage, analyzeText, reset } = useAnalysis();
+  const { graphData, updateGraph, clearGraph } = useGraph();
 
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const dropped = e.dataTransfer.files[0];
-    if (dropped && dropped.type.startsWith("image/")) {
-      setFile(dropped);
-      setPreview(URL.createObjectURL(dropped));
+  const handleImageSelect = (selected: File) => {
+    setFile(selected);
+  };
+
+  const handleAnalyze = async () => {
+    clearGraph();
+    let response: DiagnosisResponse | undefined;
+    if (file) {
+      response = await analyzeImage(file, textQuery || undefined);
+    } else if (textQuery.trim()) {
+      response = await analyzeText(textQuery);
     }
-  }, []);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (selected) {
-      setFile(selected);
-      setPreview(URL.createObjectURL(selected));
+    if (response) {
+      updateGraph(response);
     }
   };
 
-  const handleAnalyze = () => {
-    if (!file) return;
-    setIsAnalyzing(true);
-    // Placeholder for API call
-    setTimeout(() => setIsAnalyzing(false), 2000);
+  const handleVoiceTranscript = (text: string) => {
+    setTextQuery(text);
+  };
+
+  const handleReset = () => {
+    setFile(null);
+    setTextQuery("");
+    reset();
+    clearGraph();
   };
 
   return (
     <div>
       <h2 style={{ marginTop: 0, color: "#2d6a4f" }}>{t("nav.analysis")}</h2>
 
-      {/* Upload area */}
-      <div
-        onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-        style={{
-          border: "2px dashed #52b788",
-          borderRadius: 12,
-          padding: 48,
-          textAlign: "center",
-          backgroundColor: "#fff",
-          cursor: "pointer",
-          marginBottom: 24,
-        }}
-      >
-        {preview ? (
-          <img
-            src={preview}
-            alt="Preview"
-            style={{ maxWidth: 300, maxHeight: 300, borderRadius: 8 }}
+      <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+        {/* Left panel: inputs */}
+        <div style={{ flex: 1, minWidth: 320 }}>
+          <ImageUpload onImageSelect={handleImageSelect} isLoading={isLoading} />
+
+          <div style={{ marginTop: 16 }}>
+            <VoiceInput onTranscript={handleVoiceTranscript} isProcessing={isLoading} />
+          </div>
+
+          <textarea
+            value={textQuery}
+            onChange={(e) => setTextQuery(e.target.value)}
+            placeholder={i18n.language === "ar" ? "اكتب سؤالك هنا..." : "Type your question here..."}
+            style={{
+              width: "100%",
+              minHeight: 80,
+              marginTop: 16,
+              padding: 12,
+              borderRadius: 8,
+              border: "1px solid #ddd",
+              fontSize: 14,
+              resize: "vertical",
+              direction: i18n.language === "ar" ? "rtl" : "ltr",
+              boxSizing: "border-box",
+            }}
           />
-        ) : (
-          <>
-            <p style={{ fontSize: 18, color: "#2d6a4f", margin: 0 }}>
-              {t("analysis.uploadImage")}
-            </p>
-            <p style={{ fontSize: 14, color: "#888", marginTop: 8 }}>
-              {t("analysis.dragDrop")}
-            </p>
-          </>
-        )}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          style={{ display: "none" }}
-          id="file-input"
-        />
-        <label
-          htmlFor="file-input"
-          style={{
-            display: "inline-block",
-            marginTop: 16,
-            padding: "10px 24px",
-            backgroundColor: "#2d6a4f",
-            color: "#fff",
-            borderRadius: 8,
-            cursor: "pointer",
-            fontSize: 14,
-          }}
-        >
-          {t("analysis.uploadImage")}
-        </label>
+
+          <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+            <button
+              onClick={handleAnalyze}
+              disabled={(!file && !textQuery.trim()) || isLoading}
+              style={{
+                flex: 1,
+                padding: "12px 32px",
+                backgroundColor: (!file && !textQuery.trim()) || isLoading ? "#ccc" : "#2d6a4f",
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                fontSize: 16,
+                cursor: (!file && !textQuery.trim()) || isLoading ? "not-allowed" : "pointer",
+              }}
+            >
+              {isLoading ? t("analysis.analyzing") : t("analysis.analyze")}
+            </button>
+            <button
+              onClick={handleReset}
+              style={{
+                padding: "12px 24px",
+                backgroundColor: "#fff",
+                color: "#666",
+                border: "1px solid #ddd",
+                borderRadius: 8,
+                fontSize: 14,
+                cursor: "pointer",
+              }}
+            >
+              {t("common.cancel")}
+            </button>
+          </div>
+
+          {error && (
+            <p style={{ color: "#d32f2f", marginTop: 12 }}>{error}</p>
+          )}
+        </div>
+
+        {/* Right panel: results */}
+        <div style={{ flex: 1, minWidth: 320 }}>
+          <DiagnosisDisplay diagnosis={result} isLoading={isLoading} />
+
+          <div style={{ marginTop: 24 }}>
+            <GraphVisualization nodes={graphData.nodes} edges={graphData.edges} />
+          </div>
+        </div>
       </div>
-
-      {/* Analyze button */}
-      <button
-        onClick={handleAnalyze}
-        disabled={!file || isAnalyzing}
-        style={{
-          padding: "12px 32px",
-          backgroundColor: file && !isAnalyzing ? "#2d6a4f" : "#ccc",
-          color: "#fff",
-          border: "none",
-          borderRadius: 8,
-          fontSize: 16,
-          cursor: file && !isAnalyzing ? "pointer" : "not-allowed",
-        }}
-      >
-        {isAnalyzing ? t("analysis.analyzing") : t("analysis.analyze")}
-      </button>
-
-      {/* Results placeholder */}
-      {!file && (
-        <p style={{ marginTop: 32, color: "#888", textAlign: "center" }}>
-          {t("analysis.noResults")}
-        </p>
-      )}
     </div>
   );
 };
