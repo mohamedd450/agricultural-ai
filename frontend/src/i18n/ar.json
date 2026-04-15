@@ -1,0 +1,112 @@
+{
+  "app": {
+    "title": "الزراعة الذكية",
+    "subtitle": "مساعد الزراعة الذكي"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "analysis": "التحليل",
+    "history": "السجل",
+    "settings": "الإعدادات"
+  },
+  "dashboard": {
+    "welcome": "مرحباً بك في الزراعة الذكية",
+    "welcomeDesc": "تشخيص أمراض المحاصيل باستخدام تحليل الصور بالذكاء الاصطناعي ورسوم المعرفة.",
+    "quickAnalysis": "تحليل سريع",
+    "quickAnalysisDesc": "ارفع صورة محصول أو صف الأعراض للحصول على تشخيص فوري.",
+    "startAnalysis": "بدء التحليل",
+    "recentAnalyses": "التحليلات الأخيرة",
+    "noRecent": "لا توجد تحليلات حديثة. ابدأ برفع صورة.",
+    "systemStatus": "حالة النظام",
+    "apiStatus": "خادم API",
+    "modelStatus": "نموذج الذكاء الاصطناعي",
+    "graphStatus": "رسم المعرفة",
+    "online": "متصل",
+    "offline": "غير متصل"
+  },
+  "analysis": {
+    "title": "تحليل أمراض المحاصيل",
+    "imageUpload": "رفع صورة",
+    "voiceInput": "إدخال صوتي",
+    "textQuery": "استعلام نصي",
+    "textPlaceholder": "صف الأعراض التي تلاحظها...",
+    "analyze": "تحليل",
+    "analyzing": "جاري التحليل...",
+    "results": "نتائج التشخيص",
+    "graphPaths": "مسارات رسم المعرفة",
+    "noResults": "أرسل صورة أو تسجيلاً صوتياً أو استعلاماً نصياً لرؤية النتائج."
+  },
+  "upload": {
+    "dragDrop": "اسحب وأفلت الصور هنا، أو انقر للاختيار",
+    "supportedFormats": "الصيغ المدعومة: JPG، PNG، WEBP (حد أقصى 10 ميغابايت)",
+    "upload": "رفع وتحليل",
+    "uploading": "جاري الرفع...",
+    "preview": "معاينة",
+    "remove": "إزالة"
+  },
+  "diagnosis": {
+    "disease": "المرض",
+    "confidence": "الثقة",
+    "treatment": "العلاج الموصى به",
+    "explanation": "التفسير",
+    "graphPaths": "مسارات الاستدلال",
+    "high": "عالية",
+    "medium": "متوسطة",
+    "low": "منخفضة"
+  },
+  "voice": {
+    "record": "تسجيل",
+    "stop": "إيقاف التسجيل",
+    "recording": "جاري التسجيل...",
+    "processing": "جاري معالجة الصوت...",
+    "transcription": "النص المحول",
+    "notSupported": "التسجيل الصوتي غير مدعوم في متصفحك."
+  },
+  "history": {
+    "title": "سجل التحليلات",
+    "noHistory": "لا يوجد سجل تحليلات بعد.",
+    "query": "الاستعلام",
+    "diagnosis": "التشخيص",
+    "confidence": "الثقة",
+    "date": "التاريخ",
+    "viewDetails": "عرض التفاصيل",
+    "page": "صفحة",
+    "previous": "السابق",
+    "next": "التالي"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "language": "اللغة",
+    "languageDesc": "اختر لغتك المفضلة",
+    "arabic": "العربية",
+    "english": "الإنجليزية",
+    "theme": "المظهر",
+    "themeDesc": "التبديل بين الوضع الفاتح والداكن",
+    "light": "فاتح",
+    "dark": "داكن",
+    "apiKey": "مفتاح API",
+    "apiKeyDesc": "مفتاح API الخاص بك للمصادقة",
+    "show": "إظهار",
+    "hide": "إخفاء",
+    "profile": "الملف الشخصي",
+    "profileDesc": "إدارة إعدادات حسابك",
+    "username": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "save": "حفظ التغييرات"
+  },
+  "graph": {
+    "legend": "وسيلة الإيضاح",
+    "disease": "مرض",
+    "symptom": "عرض",
+    "crop": "محصول",
+    "treatment": "علاج",
+    "noData": "لا تتوفر بيانات الرسم البياني."
+  },
+  "errors": {
+    "uploadFailed": "فشل رفع الصورة. يرجى المحاولة مرة أخرى.",
+    "analysisFailed": "فشل التحليل. يرجى المحاولة مرة أخرى.",
+    "networkError": "خطأ في الشبكة. يرجى التحقق من اتصالك.",
+    "fileTooLarge": "الملف كبير جداً. الحد الأقصى 10 ميغابايت.",
+    "invalidFormat": "صيغة ملف غير صالحة. يرجى رفع JPG أو PNG أو WEBP."
+  }
+}
