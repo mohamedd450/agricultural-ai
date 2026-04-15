@@ -87,13 +87,12 @@ class VoiceService:
 
         try:
             import os
+            import tempfile
 
-            # Whisper requires a file path – write to a temporary file
-            tmp_path = os.path.join(
-                os.path.dirname(__file__), ".whisper_tmp_audio.wav"
-            )
+            # Whisper requires a file path – use a secure temp file
+            fd, tmp_path = tempfile.mkstemp(suffix=".wav")
             try:
-                with open(tmp_path, "wb") as f:
+                with os.fdopen(fd, "wb") as f:
                     f.write(audio_data)
 
                 result = self.whisper_model.transcribe(  # type: ignore[union-attr]

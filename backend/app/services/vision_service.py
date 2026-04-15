@@ -116,7 +116,11 @@ class VisionService:
                     {"class": class_name, "confidence": round(prob, 4)}
                 )
 
-            top = all_predictions[0] if all_predictions else {"class": "unknown", "confidence": 0.0}
+            top = (
+                all_predictions[0]
+                if all_predictions
+                else {"class": "unknown", "confidence": 0.0}
+            )
 
             return {
                 "class": top["class"],
