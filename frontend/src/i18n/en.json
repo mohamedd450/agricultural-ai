@@ -1,0 +1,56 @@
+{
+  "app": {
+    "title": "Agricultural AI Platform",
+    "subtitle": "AI-Powered Plant Disease Diagnosis"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "analysis": "Analysis",
+    "history": "History",
+    "settings": "Settings"
+  },
+  "analysis": {
+    "uploadImage": "Upload Plant Image",
+    "dragDrop": "Drag and drop image here",
+    "analyze": "Analyze",
+    "analyzing": "Analyzing...",
+    "diagnosis": "Diagnosis",
+    "treatment": "Treatment",
+    "confidence": "Confidence",
+    "graphPaths": "Graph Paths",
+    "explanation": "Explanation",
+    "source": "Source",
+    "noResults": "No results yet"
+  },
+  "voice": {
+    "record": "Voice Record",
+    "recording": "Recording...",
+    "stop": "Stop",
+    "processing": "Processing..."
+  },
+  "history": {
+    "title": "Analysis History",
+    "noHistory": "No history yet",
+    "date": "Date",
+    "query": "Query",
+    "result": "Result"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "arabic": "Arabic",
+    "english": "English",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close"
+  }
+}

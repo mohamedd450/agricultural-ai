@@ -1,0 +1,35 @@
+{
+  "name": "agricultural-ai-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.0",
+    "@sigmajs/react": "^1.0.0",
+    "sigma": "^3.0.0",
+    "graphology": "^0.25.4",
+    "i18next": "^23.8.2",
+    "react-i18next": "^14.0.5",
+    "axios": "^1.15.0",
+    "react-dropzone": "^14.2.3",
+    "react-icons": "^5.0.1",
+    "react-hot-toast": "^2.4.1",
+    "zustand": "^4.5.0",
+    "date-fns": "^3.3.1",
+    "typescript": "^5.3.3",
+    "react-scripts": "5.0.1",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": {
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+  }
+}
