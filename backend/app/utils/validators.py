@@ -66,6 +66,7 @@ def validate_language(lang: str) -> str:
 # Characters / patterns that should never appear in user queries.
 _DANGEROUS_PATTERNS: Final[list[re.Pattern[str]]] = [
     re.compile(r"<\s*script[^>]*>.*?<\s*/\s*script\s*>", re.IGNORECASE | re.DOTALL),
+    re.compile(r"<\s*/\s*script[^>]*>", re.IGNORECASE),  # stray closing script tags
     re.compile(r"<[^>]+>"),                          # HTML tags
     re.compile(
         r"\b(?:DROP\s+TABLE|DELETE\s+FROM|TRUNCATE\s+TABLE|ALTER\s+TABLE)\b",
