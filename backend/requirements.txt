@@ -1,0 +1,42 @@
+# Core
+fastapi==0.109.2
+uvicorn[standard]==0.27.1
+pydantic==2.6.1
+pydantic-settings==2.1.0
+python-multipart==0.0.9
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+aiohttp==3.9.3
+httpx==0.27.0
+
+# Database
+neo4j==5.17.0
+redis==5.0.1
+
+# Vector DB
+qdrant-client==1.7.3
+
+# ML/AI
+torch==2.2.0
+torchvision==0.17.0
+Pillow==10.2.0
+openai-whisper==20231117
+gtts==2.5.1
+
+# LangGraph
+langgraph==0.0.26
+langchain-core==0.1.27
+
+# Observability
+prometheus-client==0.20.0
+opentelemetry-api==1.22.0
+opentelemetry-sdk==1.22.0
+opentelemetry-instrumentation-fastapi==0.43b0
+
+# Utilities
+numpy==1.26.4
+scipy==1.12.0
+
+# Testing
+pytest==8.0.1
+pytest-asyncio==0.23.5
