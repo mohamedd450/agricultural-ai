@@ -56,6 +56,9 @@ DISEASE_LABELS: dict[str, str] = {
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 
+# Spatial size for synthetic heatmaps when no real activation map is available
+FALLBACK_HEATMAP_SIZE = 7
+
 
 def _try_load_torch():
     """Attempt to import torch and torchvision."""
@@ -301,11 +304,11 @@ class VisionService:
                 if size * size <= len(heatmap_values):
                     heatmap = heatmap_values[: size * size].reshape(size, size)
                 else:
-                    heatmap = np.random.default_rng(42).random((7, 7)) * 255
+                    heatmap = np.random.default_rng(42).random((FALLBACK_HEATMAP_SIZE, FALLBACK_HEATMAP_SIZE)) * 255
             else:
                 # Synthetic heatmap when model output is unavailable
                 rng = np.random.default_rng(42)
-                heatmap = rng.random((7, 7)) * 255
+                heatmap = rng.random((FALLBACK_HEATMAP_SIZE, FALLBACK_HEATMAP_SIZE)) * 255
 
             heatmap_resized = np.array(
                 self._Image.fromarray(heatmap.astype(np.uint8)).resize(

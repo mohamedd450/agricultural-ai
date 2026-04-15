@@ -68,6 +68,8 @@ class GraphRAGService:
         http_client: Optional ``httpx.AsyncClient`` for testing.
     """
 
+    EDGEQUAKE_TIMEOUT_SECONDS = 30.0
+
     def __init__(self, http_client: httpx.AsyncClient | None = None) -> None:
         self._settings = get_settings()
         self._base_url: str = (
@@ -84,7 +86,7 @@ class GraphRAGService:
     async def _get_client(self) -> httpx.AsyncClient:
         if self._client is not None:
             return self._client
-        return httpx.AsyncClient(timeout=30.0)
+        return httpx.AsyncClient(timeout=self.EDGEQUAKE_TIMEOUT_SECONDS)
 
     async def _post(self, path: str, payload: dict) -> dict | None:
         """POST to EdgeQuake and return the JSON body, or *None* on failure."""

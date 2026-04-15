@@ -170,7 +170,6 @@ class VoiceService:
             logger.warning("gTTS unavailable – returning empty audio")
             return b""
 
-        temp_path: str | None = None
         try:
             tts = self._gTTS(text=text, lang=language)
             buf = io.BytesIO()
@@ -187,8 +186,6 @@ class VoiceService:
         except Exception:
             logger.exception("Text-to-speech failed")
             return b""
-        finally:
-            self._cleanup_temp(temp_path)
 
     # ------------------------------------------------------------------
     # Helpers

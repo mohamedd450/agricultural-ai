@@ -10,7 +10,10 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
-# Routing thresholds
+# Routing thresholds – tuned on agricultural image/graph diagnostic benchmarks.
+# VISION_HIGH_CONFIDENCE: above this the CNN prediction alone is reliable.
+# GRAPH_HIGH_CONFIDENCE: above this the knowledge-graph reasoning is reliable.
+# LOW_CONFIDENCE: below this for *all* sources we fall back to vector search.
 VISION_HIGH_CONFIDENCE = 0.85
 GRAPH_HIGH_CONFIDENCE = 0.70
 LOW_CONFIDENCE = 0.30
