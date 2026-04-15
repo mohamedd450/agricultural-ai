@@ -83,14 +83,14 @@ async def analyze(
     graph_rag_result = await graph_rag.query(text_query, language=language) if text_query and graph_rag.is_available else None
     vector_result = await vector_db.search(text_query) if text_query and vector_db.is_available else None
 
-    routing = decision.route(
+    routing = await decision.route(
         vision_result=vision_result,
         graph_rag_result=graph_rag_result,
         vector_result=vector_result,
         has_image=True,
     )
 
-    fused = fusion.fuse(
+    fused = await fusion.fuse(
         vision_result=vision_result,
         graph_rag_result=graph_rag_result,
         vector_result=vector_result,
@@ -145,13 +145,13 @@ async def voice(
     graph_rag_result = await graph_rag.query(text, language=language) if graph_rag.is_available else None
     vector_result = await vector_db.search(text) if vector_db.is_available else None
 
-    routing = decision.route(
+    routing = await decision.route(
         graph_rag_result=graph_rag_result,
         vector_result=vector_result,
         has_image=False,
     )
 
-    fused = fusion.fuse(
+    fused = await fusion.fuse(
         graph_rag_result=graph_rag_result,
         vector_result=vector_result,
         routing_decision=routing,
@@ -203,13 +203,13 @@ async def text_query(
     graph_rag_result = await graph_rag.query(query_text, language=language) if graph_rag.is_available else None
     vector_result = await vector_db.search(query_text) if vector_db.is_available else None
 
-    routing = decision.route(
+    routing = await decision.route(
         graph_rag_result=graph_rag_result,
         vector_result=vector_result,
         has_image=False,
     )
 
-    fused = fusion.fuse(
+    fused = await fusion.fuse(
         graph_rag_result=graph_rag_result,
         vector_result=vector_result,
         routing_decision=routing,
