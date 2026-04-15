@@ -110,10 +110,11 @@ async def voice_node(state: AgriState) -> AgriState:
         language = state.get("language", "ar")
         result = await svc.speech_to_text(state["audio_data"], language=language)
         state["voice_result"] = result
-        # Append transcription to query if present
-        if isinstance(result, dict) and result.get("text"):
+        # Append transcription to query – result may be a str or a dict
+        transcribed_text = result.get("text") if isinstance(result, dict) else result
+        if transcribed_text:
             existing = state.get("query", "")
-            state["query"] = f"{existing} {result['text']}".strip()
+            state["query"] = f"{existing} {transcribed_text}".strip()
         logger.info("[voice] transcription complete")
     except Exception as exc:  # noqa: BLE001
         state["errors"].append(f"voice_node: {exc}")
@@ -209,7 +210,7 @@ async def decision_node(state: AgriState) -> AgriState:
         from app.services import DecisionRouter
 
         router = DecisionRouter()
-        decision = await router.route(
+        decision = router.route(
             vision_result=state.get("vision_result"),
             graph_rag_result=state.get("graph_rag_result"),
             vector_result=state.get("vector_result"),

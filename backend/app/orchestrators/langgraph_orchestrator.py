@@ -121,29 +121,29 @@ async def _sequential_pipeline(state: AgriState) -> AgriState:
     if state.get("_needs_voice"):
         state = await voice_node(state)
 
-    # Run vision, graph-RAG, and vector-RAG concurrently
+    # Run vision, graph-RAG, and vector-RAG concurrently using isolated
+    # copies and then merge only the result keys back into the main state.
     coros: list = []
+    coro_keys: list[str] = []
+
     if state.get("_needs_vision"):
         coros.append(vision_node({**state}))
+        coro_keys.append("vision_result")
     coros.append(graph_rag_node({**state}))
+    coro_keys.append("graph_rag_result")
     coros.append(vector_rag_node({**state}))
+    coro_keys.append("vector_result")
 
-    if coros:
-        results = await asyncio.gather(*coros, return_exceptions=True)
-        for partial in results:
-            if isinstance(partial, BaseException):
-                state.setdefault("errors", []).append(str(partial))
-                continue
-            # Merge non-None results back into the canonical state
-            for key in (
-                "vision_result",
-                "graph_rag_result",
-                "vector_result",
-            ):
-                if partial.get(key) is not None:
-                    state[key] = partial[key]  # type: ignore[literal-required]
-            # Merge errors
-            state.setdefault("errors", []).extend(partial.get("errors", []))
+    results = await asyncio.gather(*coros, return_exceptions=True)
+    for partial, expected_key in zip(results, coro_keys):
+        if isinstance(partial, BaseException):
+            state.setdefault("errors", []).append(str(partial))
+            continue
+        # Only merge the specific result key this coroutine was responsible for
+        if partial.get(expected_key) is not None:
+            state[expected_key] = partial[expected_key]  # type: ignore[literal-required]
+        # Merge errors
+        state.setdefault("errors", []).extend(partial.get("errors", []))
 
     state = await fusion_node(state)
     state = await decision_node(state)
