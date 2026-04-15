@@ -65,32 +65,26 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     ) -> Response:
         ACTIVE_CONNECTIONS.inc()
         start = time.perf_counter()
+        status = "500"
 
         try:
             response = await call_next(request)
+            status = str(response.status_code)
+            return response
         except Exception:
-            REQUEST_COUNT.labels(
-                method=request.method,
-                endpoint=request.url.path,
-                status="500",
-            ).inc()
             raise
         finally:
             duration = time.perf_counter() - start
             ACTIVE_CONNECTIONS.dec()
-
             REQUEST_LATENCY.labels(
                 method=request.method,
                 endpoint=request.url.path,
             ).observe(duration)
-
-        REQUEST_COUNT.labels(
-            method=request.method,
-            endpoint=request.url.path,
-            status=str(response.status_code),
-        ).inc()
-
-        return response
+            REQUEST_COUNT.labels(
+                method=request.method,
+                endpoint=request.url.path,
+                status=status,
+            ).inc()
 
 
 # ── Context-manager helper ───────────────────────────────────────────────────

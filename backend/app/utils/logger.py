@@ -7,6 +7,7 @@ back to a single inbound call.
 
 from __future__ import annotations
 
+import json
 import logging
 import sys
 from contextvars import ContextVar
@@ -30,15 +31,14 @@ class StructuredFormatter(logging.Formatter):
         if record.exc_text:
             message = f"{message}\n{record.exc_text}"
 
-        return (
-            "{"
-            f'"timestamp": "{timestamp}", '
-            f'"level": "{record.levelname}", '
-            f'"name": "{record.name}", '
-            f'"correlation_id": "{correlation_id}", '
-            f'"message": "{message}"'
-            "}"
-        )
+        log_record = {
+            "timestamp": timestamp,
+            "level": record.levelname,
+            "name": record.name,
+            "correlation_id": correlation_id,
+            "message": message,
+        }
+        return json.dumps(log_record, ensure_ascii=False)
 
 
 def setup_logging(level: str = "INFO") -> None:
