@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 # Redis
 # ---------------------------------------------------------------------------
 async def get_redis_client(
-    settings: Settings = None,
+    settings: Optional[Settings] = None,
 ) -> AsyncGenerator[Optional[object], None]:
     """Yield an async Redis client, or *None* if Redis is unavailable.
 
@@ -54,7 +54,7 @@ async def get_redis_client(
 # Neo4j
 # ---------------------------------------------------------------------------
 async def get_neo4j_driver(
-    settings: Settings = None,
+    settings: Optional[Settings] = None,
 ) -> AsyncGenerator[Optional[object], None]:
     """Yield a Neo4j driver, or *None* if Neo4j is unavailable.
 
@@ -84,7 +84,7 @@ async def get_neo4j_driver(
 # Qdrant
 # ---------------------------------------------------------------------------
 async def get_qdrant_client(
-    settings: Settings = None,
+    settings: Optional[Settings] = None,
 ) -> AsyncGenerator[Optional[object], None]:
     """Yield a Qdrant client, or *None* if Qdrant is unavailable.
 

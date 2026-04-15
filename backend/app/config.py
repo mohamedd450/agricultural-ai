@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     port: int = 8000
 
     # --- JWT ---
-    jwt_secret_key: str = "CHANGE-ME-in-production-use-a-real-secret"
+    jwt_secret_key: str = "CHANGE-ME-in-production-use-a-real-secret"  # noqa: S105 — override via JWT_SECRET_KEY env var
     jwt_algorithm: str = "HS256"
     jwt_expiration_minutes: int = 30
 

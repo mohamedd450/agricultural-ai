@@ -7,7 +7,7 @@ token-based authentication via OAuth2 and a simple in-memory rate limiter.
 import time
 import threading
 from datetime import datetime, timedelta, timezone
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -73,8 +73,8 @@ def get_password_hash(password: str) -> str:
 # ---------------------------------------------------------------------------
 def create_access_token(
     data: dict,
-    settings: Settings | None = None,
-    expires_delta: timedelta | None = None,
+    settings: Optional[Settings] = None,
+    expires_delta: Optional[timedelta] = None,
 ) -> str:
     """Create a signed JWT access token.
 
@@ -97,7 +97,7 @@ def create_access_token(
     return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
 
-def verify_access_token(token: str, settings: Settings | None = None) -> TokenData:
+def verify_access_token(token: str, settings: Optional[Settings] = None) -> TokenData:
     """Decode and validate a JWT access token.
 
     Raises:
@@ -152,7 +152,7 @@ class RateLimiter:
     def __init__(self, requests_per_minute: int = 60) -> None:
         self.rpm = requests_per_minute
         self._window: int = 60  # seconds
-        self._clients: Dict[str, list[float]] = {}
+        self._clients: Dict[str, List[float]] = {}
         self._lock = threading.Lock()
 
     # Periodic cleanup -------------------------------------------------------

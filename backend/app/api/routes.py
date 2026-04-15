@@ -9,7 +9,7 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.config import Settings, get_settings
 from app.security import TokenData, get_current_user
@@ -52,7 +52,7 @@ class FeedbackRequest(BaseModel):
     """Body for submitting feedback on an analysis."""
 
     request_id: str
-    rating: int
+    rating: int = Field(..., ge=1, le=5, description="Rating from 1 to 5")
     comment: Optional[str] = None
 
 
@@ -198,12 +198,6 @@ async def analysis_history(
 @router.post("/feedback", response_model=FeedbackResponse, summary="Submit feedback")
 async def submit_feedback(body: FeedbackRequest) -> FeedbackResponse:
     """Submit user feedback for a previous analysis."""
-    if not 1 <= body.rating <= 5:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Rating must be between 1 and 5.",
-        )
-
     logger.info(
         "Feedback for request %s – rating=%d, comment=%s",
         body.request_id,
