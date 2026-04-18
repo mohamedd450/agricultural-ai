@@ -15,6 +15,7 @@ from app.services.vector_db_service import VectorDBService
 from app.services.decision_router import DecisionRouter
 from app.services.fusion_service import FusionService
 from app.services.cache_service import CacheService
+from app.services.book_knowledge_service import BookKnowledgeService
 from app.database.neo4j_client import Neo4jClient
 
 
@@ -58,6 +59,12 @@ def get_fusion_service() -> FusionService:
 def get_cache_service() -> CacheService:
     """Return a cached :class:`CacheService` instance."""
     return CacheService()
+
+
+@lru_cache()
+def get_book_knowledge_service() -> BookKnowledgeService:
+    """Return a cached :class:`BookKnowledgeService` instance."""
+    return BookKnowledgeService()
 
 
 @lru_cache()

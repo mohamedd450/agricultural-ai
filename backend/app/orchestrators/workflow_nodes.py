@@ -11,6 +11,7 @@ import logging
 from typing import Optional, TypedDict
 
 from app.dependencies import (
+    get_book_knowledge_service,
     get_decision_router,
     get_fusion_service,
     get_graph_rag_service,
@@ -18,6 +19,7 @@ from app.dependencies import (
     get_vision_service,
     get_voice_service,
 )
+from app.book_processing.pipeline import BookProcessingPipeline
 from app.utils.logger import get_logger
 
 logger: logging.Logger = get_logger(__name__)
@@ -35,6 +37,9 @@ class AgriState(TypedDict, total=False):
     audio_data: Optional[bytes]
     language: str
     session_id: str
+    book_input_path: Optional[str]
+    book_output_dir: Optional[str]
+    book_embeddings_dir: Optional[str]
     vision_result: Optional[dict]
     voice_result: Optional[dict]
     graph_rag_result: Optional[dict]
@@ -42,6 +47,7 @@ class AgriState(TypedDict, total=False):
     routing_decision: Optional[dict]
     fused_result: Optional[dict]
     final_response: Optional[dict]
+    book_processing_result: Optional[dict]
     error: Optional[str]
 
 
@@ -55,6 +61,8 @@ async def router_node(state: AgriState) -> AgriState:
             input_type = "image"
         elif state.get("audio_data"):
             input_type = "voice"
+        elif state.get("book_input_path"):
+            input_type = "book"
         else:
             input_type = "text"
 
@@ -131,12 +139,15 @@ async def edgequake_node(state: AgriState) -> AgriState:
 
     try:
         graph_rag = get_graph_rag_service()
+        book_knowledge = get_book_knowledge_service()
+        local_result = await book_knowledge.search(text_query, language=state.get("language", "ar"))
         if not graph_rag.is_available:
-            logger.warning("EdgeQuake node: service unavailable")
-            return {**state, "graph_rag_result": None}
+            return {**state, "graph_rag_result": local_result}
 
         language = state.get("language", "ar")
         result = await graph_rag.query(text_query, language=language)
+        if local_result and float(local_result.get("confidence", 0.0)) > float(result.get("confidence", 0.0)):
+            result = local_result
 
         logger.info(
             "EdgeQuake node: confidence=%.2f",
@@ -157,11 +168,14 @@ async def vector_rag_node(state: AgriState) -> AgriState:
 
     try:
         vector_db = get_vector_db_service()
+        book_knowledge = get_book_knowledge_service()
+        local_result = await book_knowledge.search(text_query, language=state.get("language", "ar"))
         if not vector_db.is_available:
-            logger.warning("Vector-RAG node: service unavailable")
-            return {**state, "vector_result": None}
+            return {**state, "vector_result": local_result}
 
         result = await vector_db.search(text_query)
+        if local_result and float(local_result.get("confidence", 0.0)) > float(result.get("confidence", 0.0)):
+            result = local_result
 
         logger.info(
             "Vector-RAG node: confidence=%.2f",
@@ -171,6 +185,29 @@ async def vector_rag_node(state: AgriState) -> AgriState:
     except Exception as exc:
         logger.error("Vector-RAG node failed: %s", exc, exc_info=True)
         return {**state, "vector_result": None, "error": str(exc)}
+
+
+async def book_processing_node(state: AgriState) -> AgriState:
+    """Process books into JSON knowledge and local embeddings."""
+    input_path = state.get("book_input_path")
+    if not input_path:
+        return {**state, "book_processing_result": None}
+
+    output_dir = state.get("book_output_dir") or "data/json_output"
+    embeddings_dir = state.get("book_embeddings_dir") or "data/embeddings"
+
+    try:
+        pipeline = BookProcessingPipeline()
+        result = pipeline.process(
+            input_path=input_path,
+            output_dir=output_dir,
+            embeddings_dir=embeddings_dir,
+        )
+        get_book_knowledge_service().load()
+        return {**state, "book_processing_result": result, "final_response": result}
+    except Exception as exc:
+        logger.error("Book processing node failed: %s", exc, exc_info=True)
+        return {**state, "book_processing_result": None, "error": str(exc)}
 
 
 async def fusion_node(state: AgriState) -> AgriState:

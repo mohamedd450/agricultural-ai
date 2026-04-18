@@ -7,11 +7,16 @@ service singletons provided by :mod:`app.dependencies`.
 from __future__ import annotations
 
 import logging
+import os
+import shutil
+import tempfile
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 
+from app.book_processing.pipeline import BookProcessingPipeline
 from app.dependencies import (
+    get_book_knowledge_service,
     get_cache_service,
     get_decision_router,
     get_fusion_service,
@@ -35,6 +40,7 @@ from app.services.graph_rag_service import GraphRAGService
 from app.services.vector_db_service import VectorDBService
 from app.services.vision_service import VisionService
 from app.services.voice_service import VoiceService
+from app.services.book_knowledge_service import BookKnowledgeService
 from app.utils.exceptions import AuthenticationError, InvalidInputError
 from app.utils.logger import get_logger
 from app.utils.validators import validate_audio, validate_image, validate_language, validate_query
@@ -185,6 +191,7 @@ async def text_query(
     body: TextQuery,
     graph_rag: GraphRAGService = Depends(get_graph_rag_service),
     vector_db: VectorDBService = Depends(get_vector_db_service),
+    book_knowledge: BookKnowledgeService = Depends(get_book_knowledge_service),
     decision: DecisionRouter = Depends(get_decision_router),
     fusion: FusionService = Depends(get_fusion_service),
     cache: CacheService = Depends(get_cache_service),
@@ -202,6 +209,10 @@ async def text_query(
 
     graph_rag_result = await graph_rag.query(query_text, language=language) if graph_rag.is_available else None
     vector_result = await vector_db.search(query_text) if vector_db.is_available else None
+    if not graph_rag_result or float(graph_rag_result.get("confidence", 0.0)) == 0.0:
+        graph_rag_result = await book_knowledge.search(query_text, language=language)
+    if not vector_result or float(vector_result.get("confidence", 0.0)) == 0.0:
+        vector_result = await book_knowledge.search(query_text, language=language)
 
     routing = await decision.route(
         graph_rag_result=graph_rag_result,
@@ -220,6 +231,59 @@ async def text_query(
     await cache.set_json(cache_key, response.model_dump(mode="json"), ttl=3600)
     logger.info("Text query complete: diagnosis=%s confidence=%.2f", response.diagnosis, response.confidence)
     return response
+
+
+# ── POST /books/process ───────────────────────────────────────────────────────
+
+
+@router.post(
+    "/books/process",
+    summary="Process uploaded books into aggregated agricultural JSON knowledge",
+    description=(
+        "Upload one or more book files (PDF/EPUB/TXT/DOCX). "
+        "The service extracts structured agricultural knowledge, stores JSON "
+        "outputs, and refreshes local chat knowledge."
+    ),
+)
+async def process_books(
+    books: list[UploadFile] = File(...),
+    output_dir: str = Form(default="data/json_output"),
+    embeddings_dir: str = Form(default="data/embeddings"),
+    book_knowledge: BookKnowledgeService = Depends(get_book_knowledge_service),
+) -> dict:
+    if not books:
+        raise InvalidInputError(
+            message="At least one book file is required.",
+            error_code="BOOKS_REQUIRED",
+        )
+
+    with tempfile.TemporaryDirectory(prefix="book-upload-") as tmp_dir:
+        for upload in books:
+            safe_name = os.path.basename(upload.filename or "")
+            ext = os.path.splitext(safe_name)[1].lower()
+            if ext not in {".pdf", ".epub", ".txt", ".docx"}:
+                raise InvalidInputError(
+                    message=f"Unsupported file type: {upload.filename}",
+                    error_code="UNSUPPORTED_BOOK_TYPE",
+                )
+            if not safe_name:
+                raise InvalidInputError(
+                    message="Invalid file name.",
+                    error_code="INVALID_BOOK_FILENAME",
+                )
+
+            destination = os.path.join(tmp_dir, safe_name)
+            with open(destination, "wb") as file:
+                shutil.copyfileobj(upload.file, file)
+
+        result = BookProcessingPipeline().process(
+            input_path=tmp_dir,
+            output_dir=output_dir,
+            embeddings_dir=embeddings_dir,
+        )
+
+    book_knowledge.load()
+    return result
 
 
 # ── GET /history ─────────────────────────────────────────────────────────────

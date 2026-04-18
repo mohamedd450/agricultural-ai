@@ -17,6 +17,7 @@ from app.api.routes import router as api_router
 from app.api.websocket import router as ws_router
 from app.config import get_settings
 from app.dependencies import (
+    get_book_knowledge_service,
     get_cache_service,
     get_graph_rag_service,
     get_neo4j_client,
@@ -89,6 +90,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         await voice.load_model()
     except Exception:
         logger.warning("Voice model load failed – continuing without voice", exc_info=True)
+
+    # Processed book knowledge
+    try:
+        get_book_knowledge_service().load()
+    except Exception:
+        logger.warning("Book knowledge load failed – continuing without local book KB", exc_info=True)
 
     logger.info("All services initialised")
 
