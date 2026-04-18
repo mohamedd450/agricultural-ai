@@ -20,6 +20,7 @@ from app.dependencies import (
 )
 from app.orchestrators.workflow_nodes import (
     AgriState,
+    book_processing_node,
     decision_node,
     edgequake_node,
     fusion_node,
@@ -88,6 +89,7 @@ class LangGraphOrchestrator:
         graph.add_node("router", router_node)
         graph.add_node("vision_agent", vision_node)
         graph.add_node("voice_agent", voice_node)
+        graph.add_node("book_processing_agent", book_processing_node)
         graph.add_node("edgequake_agent", edgequake_node)
         graph.add_node("vector_rag_agent", vector_rag_node)
         graph.add_node("fusion_agent", fusion_node)
@@ -103,6 +105,7 @@ class LangGraphOrchestrator:
             {
                 "vision_agent": "vision_agent",
                 "voice_agent": "voice_agent",
+                "book_processing_agent": "book_processing_agent",
                 "edgequake_agent": "edgequake_agent",
             },
         )
@@ -110,6 +113,7 @@ class LangGraphOrchestrator:
         # After vision / voice → continue to edgequake
         graph.add_edge("vision_agent", "edgequake_agent")
         graph.add_edge("voice_agent", "edgequake_agent")
+        graph.add_edge("book_processing_agent", END)
 
         # Linear tail
         graph.add_edge("edgequake_agent", "vector_rag_agent")
@@ -129,6 +133,8 @@ class LangGraphOrchestrator:
             return "vision_agent"
         if input_type == "voice":
             return "voice_agent"
+        if input_type == "book":
+            return "book_processing_agent"
         return "edgequake_agent"
 
     # ── Public API ───────────────────────────────────────────────────────
@@ -155,6 +161,9 @@ class LangGraphOrchestrator:
             "audio_data": input_data.get("audio_data"),
             "language": input_data.get("language", "ar"),
             "session_id": input_data.get("session_id", ""),
+            "book_input_path": input_data.get("book_input_path"),
+            "book_output_dir": input_data.get("book_output_dir"),
+            "book_embeddings_dir": input_data.get("book_embeddings_dir"),
             "vision_result": None,
             "voice_result": None,
             "graph_rag_result": None,
@@ -162,6 +171,7 @@ class LangGraphOrchestrator:
             "routing_decision": None,
             "fused_result": None,
             "final_response": None,
+            "book_processing_result": None,
             "error": None,
         }
 
@@ -197,6 +207,11 @@ class LangGraphOrchestrator:
                 state = await vision_node(state)
             elif input_type == "voice":
                 state = await voice_node(state)
+            elif input_type == "book":
+                state = await book_processing_node(state)
+                return state.get("final_response") or {
+                    "error": state.get("error", "Book processing failed")
+                }
 
             # 3. Knowledge retrieval
             state = await edgequake_node(state)
