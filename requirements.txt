@@ -2,7 +2,7 @@ langgraph==0.0.26
 networkx==3.3
 chromadb==0.5.5
 sentence-transformers==2.7.0
-transformers==4.44.2
+transformers==4.48.0
 Pillow==10.3.0
 openai-whisper==20231117
 pydub==0.25.1

@@ -25,7 +25,13 @@ async def _multimodal_node(state: AgriculturalState) -> AgriculturalState:
     vision_task = asyncio.create_task(_vision_node(state))
     voice_task = asyncio.create_task(_voice_node(state))
     vision_state, voice_state = await asyncio.gather(vision_task, voice_task)
-    merged = {**state, "vision_result": vision_state.get("vision_result"), "voice_text": voice_state.get("voice_text", "")}
+    merged = dict(state)
+    merged.update(
+        {
+            "vision_result": vision_state.get("vision_result"),
+            "voice_text": voice_state.get("voice_text", ""),
+        }
+    )
     if voice_state.get("query"):
         merged["query"] = voice_state["query"]
     return merged

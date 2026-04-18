@@ -10,9 +10,13 @@ def run(state: AgriculturalState) -> AgriculturalState:
         disease = "nitrogen_deficiency"
 
     treatment = TREATMENT_DB[disease]
+    max_graph_confidence = max(
+        (float(path.get("confidence", 0.0)) for path in state.get("graph_paths", [])),
+        default=0.0,
+    )
     confidence = max(
         float(state.get("vision_result", {}).get("confidence", 0.0)),
-        max((float(path.get("confidence", 0.0)) for path in state.get("graph_paths", [])), default=0.0),
+        max_graph_confidence,
     )
 
     answer_en = (

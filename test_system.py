@@ -6,7 +6,7 @@ from langgraph_core.graph import run_workflow
 
 
 @pytest.mark.asyncio
-async def test_image_flow_generates_expected_keys() -> None:
+async def test_image_flow_detects_nitrogen_deficiency_from_yellow_leaf_hint() -> None:
     result = await run_workflow({"image": "yellow_leaf.jpg"}, user_id="u1")
     assert result["input_type"] == "image"
     assert result["vision_result"]["disease"] == "nitrogen_deficiency"

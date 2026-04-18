@@ -11,7 +11,7 @@ _STORE = build_default_store()
 
 def run(state: AgriculturalState) -> AgriculturalState:
     query = (state.get("query") or "").strip()
-    symptom_id = "yellow_leaves" if ("yellow" in query.lower() or "صفر" in query) else "yellow_leaves"
+    symptom_id = "yellow_leaves"
     vector_context = _STORE.search("nitrogen", top_k=3)
     graph_paths = get_paths_from_symptom(symptom_id, max_depth=min(settings.max_reasoning_depth, 3))
     return {
