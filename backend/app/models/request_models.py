@@ -79,3 +79,32 @@ class FeedbackRequest(BaseModel):
         default=None,
         description="Optional free-text comment.",
     )
+
+
+class CropHealthPredictionRequest(BaseModel):
+    """Request model for structured crop health prediction."""
+
+    soil_moisture: float = Field(..., ge=0, le=100, description="Soil moisture percentage.")
+    temperature_c: float = Field(..., ge=-20, le=70, description="Current field temperature in Celsius.")
+    humidity: float = Field(..., ge=0, le=100, description="Relative humidity percentage.")
+    rainfall_mm_7d: float = Field(..., ge=0, description="Accumulated rainfall in millimeters over the last 7 days.")
+    leaf_discoloration: float = Field(..., ge=0, le=1, description="Leaf discoloration severity score (0-1).")
+    pest_activity: float = Field(..., ge=0, le=1, description="Pest activity severity score (0-1).")
+
+
+class WeatherRecommendationRequest(BaseModel):
+    """Request model for weather-aware recommendations."""
+
+    latitude: float = Field(..., ge=-90, le=90, description="Farm latitude.")
+    longitude: float = Field(..., ge=-180, le=180, description="Farm longitude.")
+    crop_type: Optional[str] = Field(default=None, description="Optional crop type for targeted guidance.")
+
+
+class SoilAnalysisRequest(BaseModel):
+    """Request model for soil nutrient analysis."""
+
+    nitrogen: float = Field(..., ge=0, description="Soil nitrogen level.")
+    phosphorus: float = Field(..., ge=0, description="Soil phosphorus level.")
+    potassium: float = Field(..., ge=0, description="Soil potassium level.")
+    ph: float = Field(..., ge=0, le=14, description="Soil pH level.")
+    moisture: float = Field(..., ge=0, le=100, description="Soil moisture percentage.")

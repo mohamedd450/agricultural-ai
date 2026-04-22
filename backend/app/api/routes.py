@@ -18,29 +18,45 @@ from app.book_processing.pipeline import BookProcessingPipeline
 from app.dependencies import (
     get_book_knowledge_service,
     get_cache_service,
+    get_crop_health_service,
     get_decision_router,
     get_fusion_service,
     get_graph_rag_service,
+    get_soil_analysis_service,
     get_vector_db_service,
     get_vision_service,
     get_voice_service,
+    get_weather_service,
 )
-from app.models.request_models import FeedbackRequest, LoginRequest, TextQuery
+from app.models.request_models import (
+    CropHealthPredictionRequest,
+    FeedbackRequest,
+    LoginRequest,
+    SoilAnalysisRequest,
+    TextQuery,
+    WeatherRecommendationRequest,
+)
 from app.models.response_models import (
+    CropHealthPredictionResponse,
     DiagnosisResponse,
     HistoryResponse,
+    SoilAnalysisResponse,
     TokenResponse,
     VoiceResponse,
+    WeatherRecommendationResponse,
 )
 from app.security import create_access_token, verify_password
 from app.services.cache_service import CacheService
+from app.services.crop_health_service import CropHealthService
 from app.services.decision_router import DecisionRouter
 from app.services.fusion_service import FusionService
 from app.services.graph_rag_service import GraphRAGService
+from app.services.soil_analysis_service import SoilAnalysisService
 from app.services.vector_db_service import VectorDBService
 from app.services.vision_service import VisionService
 from app.services.voice_service import VoiceService
 from app.services.book_knowledge_service import BookKnowledgeService
+from app.services.weather_service import WeatherService
 from app.utils.exceptions import AuthenticationError, InvalidInputError
 from app.utils.logger import get_logger
 from app.utils.validators import validate_audio, validate_image, validate_language, validate_query
@@ -231,6 +247,66 @@ async def text_query(
     await cache.set_json(cache_key, response.model_dump(mode="json"), ttl=3600)
     logger.info("Text query complete: diagnosis=%s confidence=%.2f", response.diagnosis, response.confidence)
     return response
+
+
+# ── POST /crop-health/predict ────────────────────────────────────────────────
+
+
+@router.post(
+    "/crop-health/predict",
+    response_model=CropHealthPredictionResponse,
+    summary="Predict crop health from field features",
+)
+async def predict_crop_health(
+    body: CropHealthPredictionRequest,
+    crop_health: CropHealthService = Depends(get_crop_health_service),
+) -> CropHealthPredictionResponse:
+    prediction = await crop_health.predict_health(body.model_dump())
+    return CropHealthPredictionResponse(**prediction)
+
+
+# ── POST /weather/recommendations ─────────────────────────────────────────────
+
+
+@router.post(
+    "/weather/recommendations",
+    response_model=WeatherRecommendationResponse,
+    summary="Get weather-driven farming recommendations",
+)
+async def weather_recommendations(
+    body: WeatherRecommendationRequest,
+    weather_service: WeatherService = Depends(get_weather_service),
+) -> WeatherRecommendationResponse:
+    weather = await weather_service.get_current_weather(
+        latitude=body.latitude,
+        longitude=body.longitude,
+    )
+    result = await weather_service.generate_recommendations(
+        weather=weather,
+        crop_type=body.crop_type,
+    )
+    return WeatherRecommendationResponse(**result)
+
+
+# ── POST /soil/analyze ────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/soil/analyze",
+    response_model=SoilAnalysisResponse,
+    summary="Analyze soil nutrients and provide recommendations",
+)
+async def analyze_soil(
+    body: SoilAnalysisRequest,
+    soil_service: SoilAnalysisService = Depends(get_soil_analysis_service),
+) -> SoilAnalysisResponse:
+    if body.nitrogen == 0 and body.phosphorus == 0 and body.potassium == 0:
+        raise InvalidInputError(
+            message="At least one macronutrient value must be greater than zero.",
+            error_code="SOIL_NUTRIENT_VALUES_INVALID",
+        )
+    result = await soil_service.analyze(body.model_dump())
+    return SoilAnalysisResponse(**result)
 
 
 # ── POST /books/process ───────────────────────────────────────────────────────
