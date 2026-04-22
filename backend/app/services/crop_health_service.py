@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 
+from app.utils.exceptions import InvalidInputError
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -24,9 +25,17 @@ class CropHealthService:
 
     async def predict_health(self, features: dict[str, float]) -> dict:
         """Return crop health prediction from normalized tabular features."""
+        missing = [name for name in self._WEIGHTS if name not in features]
+        if missing:
+            raise InvalidInputError(
+                message="Missing required crop health features.",
+                error_code="CROP_FEATURES_MISSING",
+                details={"missing_features": missing},
+            )
+
         linear_score = self._BIAS
         for name, weight in self._WEIGHTS.items():
-            linear_score += weight * float(features.get(name, 0.0))
+            linear_score += weight * float(features[name])
 
         risk_score = 1.0 / (1.0 + math.exp(-linear_score))
         if risk_score >= 0.75:
@@ -55,7 +64,12 @@ class CropHealthService:
         return {
             "health_status": health_status,
             "risk_score": round(risk_score, 4),
-            "confidence": round(max(risk_score, 1 - risk_score), 4),
+            "confidence": round(self._calculate_confidence(risk_score), 4),
             "recommendations": recommendations,
             "factors": features,
         }
+
+    @staticmethod
+    def _calculate_confidence(risk_score: float) -> float:
+        """Map risk probability distance from decision boundary (0.5) to 0-1 confidence."""
+        return abs(risk_score - 0.5) * 2

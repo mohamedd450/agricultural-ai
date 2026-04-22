@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from types import TracebackType
+from typing import Any
+
+import httpx
 import pytest
 
 from app.services.crop_health_service import CropHealthService
 from app.services.soil_analysis_service import SoilAnalysisService
 from app.services.weather_service import WeatherService
-from app.utils.exceptions import ServiceUnavailableError
+from app.utils.exceptions import InvalidInputError, ServiceUnavailableError
 
 
 @pytest.mark.asyncio
@@ -70,13 +74,56 @@ async def test_weather_service_raises_on_provider_failure(monkeypatch: pytest.Mo
         async def __aenter__(self) -> "_FailingClient":
             return self
 
-        async def __aexit__(self, exc_type, exc, tb) -> None:  # noqa: ANN001
+        async def __aexit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc: BaseException | None,
+            tb: TracebackType | None,
+        ) -> None:
             return None
 
-        async def get(self, *args, **kwargs):  # noqa: ANN002, ANN003
-            raise RuntimeError("network down")
+        async def get(self, *args: Any, **kwargs: Any) -> None:
+            raise httpx.ConnectError("network down")
 
     monkeypatch.setattr("app.services.weather_service.httpx.AsyncClient", lambda *args, **kwargs: _FailingClient())
 
+    with pytest.raises(ServiceUnavailableError):
+        await service.get_current_weather(latitude=30.0, longitude=31.0)
+
+
+@pytest.mark.asyncio
+async def test_crop_health_rejects_missing_features() -> None:
+    service = CropHealthService()
+    with pytest.raises(InvalidInputError):
+        await service.predict_health({"soil_moisture": 10})
+
+
+@pytest.mark.asyncio
+async def test_weather_service_raises_on_incomplete_payload(monkeypatch: pytest.MonkeyPatch) -> None:
+    service = WeatherService()
+
+    class _Response:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict:
+            return {"current": {"temperature_2m": 20.0}}
+
+    class _Client:
+        async def __aenter__(self) -> "_Client":
+            return self
+
+        async def __aexit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc: BaseException | None,
+            tb: TracebackType | None,
+        ) -> None:
+            return None
+
+        async def get(self, *args: Any, **kwargs: Any) -> _Response:
+            return _Response()
+
+    monkeypatch.setattr("app.services.weather_service.httpx.AsyncClient", lambda *args, **kwargs: _Client())
     with pytest.raises(ServiceUnavailableError):
         await service.get_current_weather(latitude=30.0, longitude=31.0)

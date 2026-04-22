@@ -300,11 +300,6 @@ async def analyze_soil(
     body: SoilAnalysisRequest,
     soil_service: SoilAnalysisService = Depends(get_soil_analysis_service),
 ) -> SoilAnalysisResponse:
-    if body.nitrogen == 0 and body.phosphorus == 0 and body.potassium == 0:
-        raise InvalidInputError(
-            message="At least one macronutrient value must be greater than zero.",
-            error_code="SOIL_NUTRIENT_VALUES_INVALID",
-        )
     result = await soil_service.analyze(body.model_dump())
     return SoilAnalysisResponse(**result)
 
