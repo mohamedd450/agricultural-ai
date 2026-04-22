@@ -16,6 +16,9 @@ from app.services.decision_router import DecisionRouter
 from app.services.fusion_service import FusionService
 from app.services.cache_service import CacheService
 from app.services.book_knowledge_service import BookKnowledgeService
+from app.services.crop_health_service import CropHealthService
+from app.services.weather_service import WeatherService
+from app.services.soil_analysis_service import SoilAnalysisService
 from app.database.neo4j_client import Neo4jClient
 
 
@@ -65,6 +68,24 @@ def get_cache_service() -> CacheService:
 def get_book_knowledge_service() -> BookKnowledgeService:
     """Return a cached :class:`BookKnowledgeService` instance."""
     return BookKnowledgeService()
+
+
+@lru_cache()
+def get_crop_health_service() -> CropHealthService:
+    """Return a cached :class:`CropHealthService` instance."""
+    return CropHealthService()
+
+
+@lru_cache()
+def get_weather_service() -> WeatherService:
+    """Return a cached :class:`WeatherService` instance."""
+    return WeatherService()
+
+
+@lru_cache()
+def get_soil_analysis_service() -> SoilAnalysisService:
+    """Return a cached :class:`SoilAnalysisService` instance."""
+    return SoilAnalysisService()
 
 
 @lru_cache()

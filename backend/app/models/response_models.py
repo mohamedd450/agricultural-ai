@@ -117,3 +117,30 @@ class GraphVisualization(BaseModel):
 
     nodes: list[GraphNode] = Field(..., description="Graph nodes.")
     edges: list[GraphEdge] = Field(..., description="Graph edges.")
+
+
+class CropHealthPredictionResponse(BaseModel):
+    """Response model for crop health prediction endpoint."""
+
+    health_status: str = Field(..., description="Predicted crop health status.")
+    risk_score: float = Field(..., description="Estimated risk score (0.0-1.0).")
+    confidence: float = Field(..., description="Prediction confidence score (0.0-1.0).")
+    recommendations: list[str] = Field(..., description="Field recommendations based on prediction.")
+    factors: dict[str, float] = Field(..., description="Input factors used for inference.")
+
+
+class WeatherRecommendationResponse(BaseModel):
+    """Response model for weather recommendation endpoint."""
+
+    current_weather: dict[str, float] = Field(..., description="Current weather metrics.")
+    recommendations: list[str] = Field(..., description="Weather-driven operational recommendations.")
+    irrigation_alert: str = Field(..., description="Irrigation adjustment alert.")
+
+
+class SoilAnalysisResponse(BaseModel):
+    """Response model for soil nutrient analysis endpoint."""
+
+    overall_health: str = Field(..., description="Overall soil health status.")
+    nutrient_levels: dict[str, str] = Field(..., description="Classified nutrient levels by parameter.")
+    deficiencies: list[str] = Field(..., description="Identified low nutrient categories.")
+    recommendations: list[str] = Field(..., description="Recommended soil management actions.")

@@ -42,6 +42,8 @@ class Settings(BaseSettings):
 
     # ── External services ────────────────────────────────────────────────
     edgequake_endpoint: str = Field(default="http://localhost:8081/edgequake")
+    weather_api_url: str = Field(default="https://api.open-meteo.com/v1/forecast")
+    weather_timeout_seconds: float = Field(default=5.0)
     whisper_model_size: str = Field(default="base")
     vision_model_name: str = Field(default="efficientnet_b0")
 
